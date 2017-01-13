@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>singleton</title>
+    <style type="text/css">
+        .tab-wrap div{
+            display: inline-block;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333; 
+            width: 100px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .tab-wrap .active{
+            background-color: #333; 
+            color: #fff;
+        }
+        .cont-wrap div {
+            display: none;
+        }
+        .cont-wrap .active {
+            display: block;
+            width: 250px;
+            height: 200px;
+            color: #333;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            padding: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tab-wrap" id="J-tab-wrap">
+        <div data-role="tab" data-index="1" class="active">Tab1</div>
+        <div data-role="tab" data-index="2" id="J-tab-2">Tab2</div>
+    </div>
+    <div class="cont-wrap" id="J-cont-wrap">
+        <div data-role="cont" data-index="1" class="active">Cont1</div>
+        <div data-role="cont" data-index="2"></div>
+    </div>
+    <script src="//cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+$(function(){
+      let $tabWrap = $('#J-tab-wrap');
+      let $contWrap = $('#J-cont-wrap');
+      let $tabs = $tabWrap.find('[data-role="tab"]');
+      let $conts = $contWrap.find('[data-role="cont"]');
+      let $tabAjax = $('#J-tab-2');
+      let classActive = 'active';
+
+      function fakeAjax(cb){
+          setTimeout(() => cb(new Date().valueOf()), 300);
+      }
+      function getSingle(fn){
+          var ret;
+          return function(){
+              return ret || (ret = fn.apply(this, arguments));
+          };
+      }
+      
+      // tab切换
+      $tabWrap.on('click', '[data-role="tab"]', function(){
+          let $curr = $(this);
+          let i= $curr.data('index');
+          if ($curr.hasClass(classActive)){
+              return;
+          }
+          $tabWrap.find('.'+classActive).removeClass(classActive);
+          $curr.addClass(classActive);
+          $contWrap.find('.'+classActive).removeClass(classActive);
+          $contWrap.find('[data-index="'+i+'"]').addClass(classActive);
+      });
+
+      // 针对tab2的单独处理
+      $tabAjax.click(getSingle(() => {
+          fakeAjax((data) => {
+              let i = $tabAjax.data('index');
+              $contWrap.find('[data-index="'+i+'"]').html(data);
+          });
+          return true;
+      }));
+});
+    </script>
+</body>
+</html>
